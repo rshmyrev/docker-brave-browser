@@ -1,42 +1,84 @@
-# Brave-browser Docker
+# Brave Browser Docker Image
+
+## Table of Contents
+
+- [Description](#description)
+- [Configuration](#configuration)
+    - [Environment Variables](#environment-variables)
+    - [Volumes](#volumes)
+- [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+- [Running the Container](#running-the-container)
+    - [Docker Run](#docker-run)
+    - [Docker Compose](#docker-compose)
+- [License](#license)
+
+## Description
+
+This project provides a Dockerized version of the [Brave browser](https://brave.com/), allowing you to run Brave in an isolated container environment.
 
 ## Configuration
 
-The [Brave-browser](https://brave.com/) Docker container can be configured using environment variables and volumes.
-
 ### Environment Variables
 
-- `DISPLAY`: X11 display server connection string (e.g., `unix$DISPLAY`).
-- `PULSE_SERVER`: path to PulseAudio server (e.g. `unix:$XDG_RUNTIME_DIR/pulse/native`).
+- `DISPLAY`: X11 display server connection string.
+- `PULSE_SERVER`: Path to PulseAudio server.
 
 ### Volumes
 
-- `/tmp/.X11-unix:/tmp/.X11-unix:ro`: X11 socket for display forwarding.
+- `/tmp/.X11-unix:/tmp/.X11-unix:ro`: X11 socket.
 - `$XDG_RUNTIME_DIR/pulse:$XDG_RUNTIME_DIR/pulse:ro`: PulseAudio.
-- `/run/dbus:/run/dbus:ro`: D-Bus.
-- `brave-browser_home:/home/user`: home directory.
-- `$HOME/Downloads:/downloads`: Downloads directory.
+- `brave-browser_home:/home/user`: Home directory.
+- `$HOME/Downloads:/home/user/Downloads`: Downloads directory.
 
-## Usage
+## Getting Started
 
-### Docker run
+### Prerequisites
+
+- Docker installed on your machine.
+- Docker Compose for orchestrating containers (optional).
+
+### Installation
+
+Clone the repository and build the Docker image:
+
+```bash
+git clone https://github.com/rshmyrev/docker-brave-browser.git
+cd docker-brave-browser
+docker build -t rshmyrev/brave-browser .
+```
+
+## Running the Container
+
+### Docker Run
+
+Run the Brave browser using Docker:
 
 ```bash
 docker run -d \
   --name brave-browser \
-  -e DISPLAY=unix${DISPLAY} \
+  -e DISPLAY=${DISPLAY} \
   -e PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native \
   --device /dev/dri:/dev/dri \
+  --cap-drop=ALL \
+  --security-opt no-new-privileges=true \
+  --shm-size=1g \
   -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
   -v ${XDG_RUNTIME_DIR}/pulse:${XDG_RUNTIME_DIR}/pulse:ro \
-  -v /run/dbus:/run/dbus:ro \
   -v brave-browser_home:/home/user \
   -v ${HOME}/Downloads:/home/user/Downloads \
   rshmyrev/brave-browser
 ```
 
-### Docker compose
+### Docker Compose
+
+Start the container using Docker Compose:
 
 ```bash
 docker compose up -d
 ```
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
